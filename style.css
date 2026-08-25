@@ -1,321 +1,153 @@
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
-  padding: 20px;
-}
-.container { max-width: 600px; margin: 0 auto; }
-.container-wide { max-width: 1100px; margin: 0 auto; }
-.layout-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
-  align-items: start;
-}
-.col-left, .col-right {
-  display: flex;
-  flex-direction: column;
-}
-@media (min-width: 900px) {
-  .layout-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-.title-inline {
-  color: #374151;
-  text-align: center;
-  margin-bottom: 6px;
-  font-size: 20px;
-}
-.subtitle-inline {
-  color: #6b7280;
-  text-align: center;
-  margin-bottom: 15px;
-  font-size: 12px;
-}
-h1 {
-  color: white;
-  text-align: center;
-  margin-bottom: 10px;
-  font-size: 26px;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-}
-.subtitle {
-  color: rgba(255,255,255,0.9);
-  text-align: center;
-  margin-bottom: 25px;
-  font-size: 14px;
-}
-.card {
-  background: white;
-  border-radius: 16px;
-  padding: 25px;
-  margin-bottom: 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-}
-.result-box {
-  width: 100%;
-  border-radius: 12px;
-  border: 3px solid #e5e7eb;
-  padding: 20px;
-  transition: all 0.3s;
-  position: relative;
-}
-.result-box-large { border-color: #8b5cf6; background: #faf5ff; }
-.result-box-manual { border-color: #10b981; background: #f0fdf4; }
-.result-header {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 15px;
-  padding-bottom: 15px;
-  border-bottom: 2px solid #e5e7eb;
-}
-.result-meta { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #6b7280; }
-.result-meta strong { color: #374151; }
-.color-display {
-  width: 100%;
-  height: 100px;
-  border-radius: 8px;
-  border: 2px solid #e5e7eb;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 10px;
-}
-.color-display .hex-code {
-  font-family: 'Courier New', monospace;
-  font-size: 18px;
-  font-weight: 700;
-  color: white;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-}
-.recipe-section { margin-top: 15px; margin-bottom: 15px; }
-.recipe-title { font-size: 14px; font-weight: 700; color: #374151; margin-bottom: 10px; }
-.recipe-item-display {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px;
-  background: #f9fafb;
-  border-radius: 6px;
-  margin-bottom: 6px;
-}
-.recipe-color-box {
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  border: 2px solid #e5e7eb;
-  flex-shrink: 0;
-}
-.recipe-text { flex: 1; font-size: 14px; color: #374151; }
-.recipe-percent { font-weight: 600; color: #6b7280; }
-.btn-copy-info {
-  width: 100%;
-  padding: 10px;
-  background: #6b7280;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-.btn-copy-info:active { transform: scale(0.98); background: #4b5563; }
-.compare-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-.compare-box { border-radius: 12px; border: 3px solid #e5e7eb; padding: 15px; }
-.compare-box.ai { border-color: #8b5cf6; background: #faf5ff; }
-.compare-box.manual { border-color: #10b981; background: #f0fdf4; }
-.compare-label { font-size: 12px; font-weight: 600; margin-bottom: 10px; text-align: center; }
-.compare-color {
-  width: 100%;
-  height: 80px;
-  border-radius: 8px;
-  border: 2px solid #e5e7eb;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 8px;
-}
-.compare-hex {
-  font-family: 'Courier New', monospace;
-  font-size: 14px;
-  font-weight: 700;
-  text-align: center;
-  color: white;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-}
-.input-group { margin-bottom: 15px; }
-.input-group label { display: block; font-weight: 600; margin-bottom: 6px; color: #374151; font-size: 13px; }
-input[type="text"], input[type="date"], select {
-  width: 100%;
-  padding: 10px;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 14px;
-  background: white;
-}
-.custom-select { position: relative; width: 100%; }
-.select-display {
-  width: 100%;
-  padding: 12px 40px 12px 50px;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 14px;
-  background: white;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  position: relative;
-}
-.select-display::after {
-  content: '▼';
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #374151;
-  font-size: 12px;
-}
-.color-indicator {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 30px;
-  height: 30px;
-  border-radius: 6px;
-  border: 2px solid #e5e7eb;
-}
-.options-list {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  max-height: 300px;
-  overflow-y: auto;
-  background: white;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  margin-top: 4px;
-  z-index: 100;
-  display: none;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-.options-list.show { display: block; }
-.option-item {
-  padding: 12px 12px 12px 50px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  position: relative;
-  transition: background 0.2s;
-}
-.option-item:hover { background: #f3f4f6; }
-.option-color {
-  position: absolute;
-  left: 12px;
-  width: 30px;
-  height: 30px;
-  border-radius: 6px;
-  border: 2px solid #e5e7eb;
-}
-.ratio-control { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
-.ratio-control input { flex: 1; height: 8px; }
-.ratio-value { min-width: 50px; text-align: center; font-weight: 600; color: #374151; font-size: 16px; }
-button {
-  width: 100%;
-  padding: 14px;
-  border: none;
-  border-radius: 10px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  margin-bottom: 10px;
-}
-.btn-add { background: #10b981; color: white; }
-.btn-add:active { transform: scale(0.98); }
-.btn-reset { background: #ef4444; color: white; }
-.btn-reset:active { transform: scale(0.98); }
-.btn-paste { background: #f59e0b; color: white; }
-.btn-paste:active { transform: scale(0.98); }
-.btn-copy-prompt { background: #8b5cf6; color: white; }
-.btn-copy-prompt:active { transform: scale(0.98); }
-.btn-save { background: #3b82f6; color: white; }
-.btn-save:active { transform: scale(0.98); }
-.recipe-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px;
-  background: #f9fafb;
-  border-radius: 8px;
-  margin-bottom: 10px;
-}
-.recipe-left { display: flex; align-items: center; gap: 10px; }
-.recipe-name { font-weight: 600; color: #374151; }
-.recipe-percent-text { color: #6b7280; font-size: 14px; }
-.btn-remove {
-  background: #fee2e2;
-  color: #dc2626;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 12px;
-  cursor: pointer;
-}
-.color-preview {
-  display: inline-block;
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  border: 2px solid #e5e7eb;
-}
-textarea {
-  width: 100%;
-  min-height: 100px;
-  padding: 12px;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 13px;
-  font-family: 'Courier New', monospace;
-  resize: vertical;
-  margin-bottom: 10px;
-}
-.section-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: #374151;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.help-text { font-size: 12px; color: #6b7280; margin-bottom: 10px; line-height: 1.5; }
-.toast {
-  position: fixed;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #1f2937;
-  color: white;
-  padding: 14px 24px;
-  border-radius: 8px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-  opacity: 0;
-  transition: opacity 0.3s;
-  pointer-events: none;
-  z-index: 1000;
-  font-size: 14px;
-  max-width: 90%;
-  text-align: center;
-}
-.toast.show { opacity: 1; }
-@media (max-width: 768px) {
-  body { padding: 15px; }
-  h1 { font-size: 22px; }
-  .card { padding: 20px; }
-}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>混-KON-</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container-wide">
+
+  <div class="layout-grid">
+    <div class="col-left">
+      <div class="card">
+        <div class="section-title">🤖 AIに依頼する</div>
+        <div class="help-text">他AI（ChatGPT等）に投げるプロンプトをコピーします。</div>
+
+        <div class="input-group">
+          <label>🎨 作りたい色名:</label>
+          <input type="text" id="promptColorName" placeholder="例: 夢見る白、深海ブルー" />
+        </div>
+
+        <button class="btn-copy-prompt" onclick="copyPrompt()">📋 AI用プロンプトをコピー</button>
+
+        <div style="margin-top: 20px;">
+          <div class="input-group">
+            <label>📅 日付:</label>
+            <input type="date" id="aiDate" />
+          </div>
+
+          <div class="input-group">
+            <label>🎨 作りたい色名:</label>
+            <input type="text" id="aiColorName" placeholder="例: 夢見る白、深海ブルー" />
+          </div>
+
+          <div class="input-group">
+            <label>🤖 使用AI:</label>
+            <select id="aiName">
+              <option value="ChatGPT">ChatGPT</option>
+              <option value="Gemini">Gemini</option>
+              <option value="Copilot">Copilot</option>
+              <option value="Claude">Claude</option>
+              <option value="Perplexity">Perplexity</option>
+              <option value="その他">その他</option>
+            </select>
+          </div>
+
+          <label style="font-weight: 600; color: #374151; display: block; margin-bottom: 8px;">AIの提案を貼り付け（そのまま貼り付けでOK）:</label>
+          <textarea id="pasteArea" placeholder="例: ホワイト70%, ライトイエロー15%, ラベンダー10%, ピンク5%"></textarea>
+          <button class="btn-paste" onclick="parseAIResponse()">✨ AI提案を反映する</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-right">
+      <div class="card">
+        <h1 class="title-inline">🎨 混-KON-</h1>
+        <p class="subtitle-inline">33色から自由に混ぜてオリジナルカラーを作ろう</p>
+        <button class="btn-save" onclick="saveAsHTML()">💾 このツールを保存</button>
+      </div>
+
+      <div class="card">
+        <div class="section-title">⚖️ 比較</div>
+        <div class="compare-container">
+          <div class="compare-box ai">
+            <div class="compare-label" style="color: #8b5cf6;">🤖 AI提案</div>
+            <div class="compare-color" id="compareAiColor" style="background: #cccccc;">
+              <span class="hex-code" style="font-size: 14px;">-</span>
+            </div>
+            <div class="compare-hex" id="compareAiHex">反映してください</div>
+          </div>
+
+          <div class="compare-box manual">
+            <div class="compare-label" style="color: #10b981;">✋ 手動調整</div>
+            <div class="compare-color" id="compareManualColor" style="background: #cccccc;">
+              <span class="hex-code" style="font-size: 14px;">-</span>
+            </div>
+            <div class="compare-hex" id="compareManualHex">追加してください</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">✋ 手動で混色</div>
+
+        <div class="input-group">
+          <label>色を選択（タップで一覧表示）:</label>
+          <div class="custom-select">
+            <div class="select-display" onclick="toggleOptions()">
+              <div class="color-indicator" id="colorIndicator" style="background: #FFFFFF;"></div>
+              <span id="selectedColorText">ホワイト (#FFFFFF)</span>
+            </div>
+            <div class="options-list" id="optionsList"></div>
+          </div>
+        </div>
+
+        <div class="ratio-control">
+          <label style="min-width: 60px; font-weight: 600;">配合量:</label>
+          <input type="range" id="ratioSlider" min="5" max="100" value="50" step="5">
+          <span class="ratio-value" id="ratioValue">50%</span>
+        </div>
+
+        <button class="btn-add" onclick="addColor()">➕ この色を追加</button>
+
+        <div id="manualRecipeList" style="margin-top: 15px;"></div>
+
+        <button class="btn-reset" onclick="resetManual()">🔄 手動調整をリセット</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="aiSummaryCard" style="display: none;">
+    <div class="result-box result-box-large">
+      <div class="result-header">
+        <div class="result-meta">📅 <strong id="displayDate">-</strong></div>
+        <div class="result-meta">🎨 <strong id="displayColorName">-</strong></div>
+        <div class="result-meta">🤖 <strong id="displayAiName">-</strong></div>
+      </div>
+
+      <div class="color-display" id="aiColorDisplay" style="background: #cccccc;">
+        <span class="hex-code" id="aiHexCode">#CCCCCC</span>
+      </div>
+
+      <div class="recipe-section" id="aiRecipeSection"></div>
+
+      <button class="btn-copy-info" onclick="copyAIInfo()">📋 この情報をテキストでコピー</button>
+    </div>
+  </div>
+
+  <div class="card" id="manualSummaryCard" style="display: none;">
+    <div class="result-box result-box-manual">
+      <div class="result-header">
+        <div class="result-meta">✋ <strong>手動調整の結果</strong></div>
+        <div class="result-meta">📅 <strong id="manualDisplayDate">-</strong></div>
+      </div>
+
+      <div class="color-display" id="manualColorDisplay" style="background: #cccccc;">
+        <span class="hex-code" id="manualHexCode">#CCCCCC</span>
+      </div>
+
+      <div class="recipe-section" id="manualRecipeSection"></div>
+
+      <button class="btn-copy-info" onclick="copyManualInfo()">📋 この情報をテキストでコピー</button>
+      <button class="btn-copy-info" onclick="copyManualForAI()" style="background: #8b5cf6; margin-top: 10px;">🔄 AI入力用にコピー</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
