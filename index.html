@@ -1,142 +1,399 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>カラーサンド混色シミュレーター</title>
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
-<div class="container">
-  <h1>🎨 カラーサンド混色シミュレーター</h1>
-  <p class="subtitle">33色から自由に混ぜてオリジナルカラーを作ろう</p>
+const colors = [
+  {id: 1, name: "ホワイト", hex: "#FFFFFF"},
+  {id: 2, name: "ブラック", hex: "#000000"},
+  {id: 3, name: "グレー", hex: "#808080"},
+  {id: 4, name: "ライトグレー", hex: "#D3D3D3"},
+  {id: 5, name: "レッド", hex: "#FF0000"},
+  {id: 6, name: "ワインレッド", hex: "#800000"},
+  {id: 7, name: "ピンク", hex: "#FFC0CB"},
+  {id: 8, name: "コーラル", hex: "#FF7F50"},
+  {id: 9, name: "オレンジ", hex: "#FFA500"},
+  {id: 10, name: "ライトオレンジ", hex: "#FFD580"},
+  {id: 11, name: "イエロー", hex: "#FFFF00"},
+  {id: 12, name: "ライトイエロー", hex: "#FFFFE0"},
+  {id: 13, name: "ネオンイエロー", hex: "#CCFF00"},
+  {id: 14, name: "グリーン", hex: "#008000"},
+  {id: 15, name: "ライトグリーン", hex: "#90EE90"},
+  {id: 16, name: "ミントブルー", hex: "#98FFFC"},
+  {id: 17, name: "ターコイズ", hex: "#40E0D0"},
+  {id: 18, name: "アクア", hex: "#00FFFF"},
+  {id: 19, name: "ブルー", hex: "#0000FF"},
+  {id: 20, name: "コバルトブルー", hex: "#0047AB"},
+  {id: 21, name: "スカイブルー", hex: "#87CEEB"},
+  {id: 22, name: "ネイビー", hex: "#000080"},
+  {id: 23, name: "パープル", hex: "#800080"},
+  {id: 24, name: "ラベンダー", hex: "#E6E6FA"},
+  {id: 25, name: "ブラウン", hex: "#A52A2A"},
+  {id: 26, name: "ライトブラウン", hex: "#D2B48C"},
+  {id: 27, name: "ベージュ", hex: "#F5F5DC"},
+  {id: 28, name: "サンドベージュ", hex: "#C2B280"},
+  {id: 29, name: "ゴールド", hex: "#FFD700"},
+  {id: 30, name: "シルバー", hex: "#C0C0C0"},
+  {id: 31, name: "オリーブ", hex: "#808000"},
+  {id: 32, name: "ブライトピンク", hex: "#FF69B4"},
+  {id: 33, name: "ワインピンク", hex: "#C71585"}
+];
 
-  <div class="card">
-    <button class="btn-save" onclick="saveAsHTML()">💾 このツールを保存</button>
-  </div>
+let aiRecipe = [];
+let manualRecipe = [];
+let selectedColorId = 1;
+let aiInfoCache = {};
 
-  <div class="card">
-    <div class="section-title">🤖 AIに依頼する</div>
-    <div class="help-text">下のボタンを押すと、他のAI（ChatGPT、Gemini等）に投げる用のプロンプトがコピーされます。</div>
-    <button class="btn-copy-prompt" onclick="copyPrompt()">📋 AI用プロンプトをコピー</button>
+document.getElementById('aiDate').valueAsDate = new Date();
 
-    <div style="margin-top: 20px;">
-      <div class="input-group">
-        <label>📅 日付:</label>
-        <input type="date" id="aiDate" />
+const optionsList = document.getElementById('optionsList');
+colors.forEach(c => {
+  const div = document.createElement('div');
+  div.className = 'option-item';
+  div.onclick = () => selectColor(c.id);
+  const borderColor = (c.hex === '#FFFFFF' || c.hex === '#FFFFE0' || c.hex === '#FFFF00') ? '#ccc' : '#e5e7eb';
+  div.innerHTML = `
+    <div class="option-color" style="background: ${c.hex}; border-color: ${borderColor};"></div>
+    <span>${c.name} (${c.hex})</span>
+  `;
+  optionsList.appendChild(div);
+});
+
+function toggleOptions() {
+  optionsList.classList.toggle('show');
+}
+
+function selectColor(colorId) {
+  selectedColorId = colorId;
+  const color = colors.find(c => c.id === colorId);
+  document.getElementById('selectedColorText').textContent = `${color.name} (${color.hex})`;
+  const indicator = document.getElementById('colorIndicator');
+  indicator.style.background = color.hex;
+  const borderColor = (color.hex === '#FFFFFF' || color.hex === '#FFFFE0' || color.hex === '#FFFF00') ? '#ccc' : '#e5e7eb';
+  indicator.style.borderColor = borderColor;
+  optionsList.classList.remove('show');
+}
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.custom-select')) {
+    optionsList.classList.remove('show');
+  }
+});
+
+const slider = document.getElementById('ratioSlider');
+const ratioValue = document.getElementById('ratioValue');
+
+slider.addEventListener('input', () => {
+  ratioValue.textContent = slider.value + '%';
+});
+
+function copyPrompt() {
+  const colorList = colors.map(c => `${c.name} (${c.hex})`).join('\n');
+  const promptColorName = document.getElementById('promptColorName').value.trim();
+  const targetColorLine = promptColorName || '（ここに作りたい色を書いてください。例: 深海ブルー、桜色、夕焼け など）';
+  
+  const prompt = `以下の33色カラーサンドから、指定した色の混色レシピを提案してください。
+
+【重要】必ず以下の形式で1行のみ回答してください：
+ホワイト70%, ライトイエロー15%, ラベンダー10%, ピンク5%
+
+※カラーコード付きでも可：ホワイト(#FFFFFF)70%, ライトイエロー(#FFFFE0)15%
+※表・箇条書き・説明文は不要です。上記形式のみで回答してください。
+
+【色リスト】
+${colorList}
+
+【依頼する色】
+${targetColorLine}`;
+
+  navigator.clipboard.writeText(prompt).then(() => {
+    showToast('✅ プロンプトをコピーしました！AIに貼り付けて依頼してください');
+  }).catch(() => {
+    showToast('❌ コピーに失敗しました');
+  });
+}
+
+function parseAIResponse() {
+  const text = document.getElementById('pasteArea').value.trim();
+  const date = document.getElementById('aiDate').value;
+  const colorName = document.getElementById('aiColorName').value.trim() || '未設定';
+  const aiName = document.getElementById('aiName').value;
+
+  if (!text) {
+    showToast('❌ 提案が空です');
+    return;
+  }
+
+  if (!date) {
+    showToast('❌ 日付を入力してください');
+    return;
+  }
+
+  aiRecipe = [];
+
+  const items = text.split(',').map(s => s.trim());
+
+  items.forEach(item => {
+    const match = item.match(/([ぁ-んァ-ヶー一-龠a-zA-Z]+(?:\s*[ぁ-んァ-ヶー一-龠a-zA-Z]+)*)(?:\s*\(#[0-9A-Fa-f]{6}\))?\s*(\d+)%?/);
+
+    if (match) {
+      const colorNameMatch = match[1].trim().replace(/\s+/g, '');
+      const ratio = parseInt(match[2]);
+
+      let color = colors.find(c => {
+        const cleanColorName = c.name.replace(/\s+/g, '');
+        return cleanColorName === colorNameMatch;
+      });
+
+      if (!color) {
+        const sortedColors = [...colors].sort((a, b) => b.name.length - a.name.length);
+        color = sortedColors.find(c => {
+          const cleanColorName = c.name.replace(/\s+/g, '');
+          return cleanColorName.includes(colorNameMatch) ||
+                 colorNameMatch.includes(cleanColorName);
+        });
+      }
+
+      if (color && ratio > 0) {
+        aiRecipe.push({ color, ratio });
+      }
+    }
+  });
+
+  if (aiRecipe.length === 0) {
+    showToast('❌ 提案を認識できませんでした。「色名 数字%」の形式で入力してください');
+    return;
+  }
+
+  aiInfoCache = { date, colorName, aiName };
+  updateAIResult(date, colorName, aiName);
+  updateCompareAI();
+  showToast('✨ AI提案を反映しました！');
+}
+
+function updateAIResult(date, colorName, aiName) {
+  const resultHex = mixColors(aiRecipe);
+  if (!resultHex) return;
+
+  document.getElementById('displayDate').textContent = date;
+  document.getElementById('displayColorName').textContent = colorName;
+  document.getElementById('displayAiName').textContent = aiName;
+
+  document.getElementById('aiColorDisplay').style.background = resultHex;
+  document.getElementById('aiHexCode').textContent = resultHex;
+
+  const recipeSection = document.getElementById('aiRecipeSection');
+  recipeSection.innerHTML = '<div class="recipe-title">📋 レシピ:</div>';
+
+  aiRecipe.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'recipe-item-display';
+    const borderColor = (item.color.hex === '#FFFFFF' || item.color.hex === '#FFFFE0' || item.color.hex === '#FFFF00') ? '#ccc' : '#e5e7eb';
+    div.innerHTML = `
+      <div class="recipe-color-box" style="background: ${item.color.hex}; border-color: ${borderColor};"></div>
+      <span class="recipe-text">${item.color.name}</span>
+      <span class="recipe-percent">${item.ratio}%</span>
+    `;
+    recipeSection.appendChild(div);
+  });
+
+  document.getElementById('aiSummaryCard').style.display = 'block';
+}
+
+function copyAIInfo() {
+  const resultHex = mixColors(aiRecipe);
+  const recipeText = aiRecipe.map(item => `${item.color.name} ${item.ratio}%`).join('\n');
+
+  const text = `📅 ${aiInfoCache.date}
+🎨 ${aiInfoCache.colorName}
+🤖 ${aiInfoCache.aiName}
+
+📋 レシピ:
+${recipeText}
+
+🎨 ${resultHex}`;
+
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('✅ AI提案情報をコピーしました！');
+  }).catch(() => {
+    showToast('❌ コピーに失敗しました');
+  });
+}
+
+function updateCompareAI() {
+  const resultHex = mixColors(aiRecipe);
+  if (!resultHex) return;
+
+  document.getElementById('compareAiColor').style.background = resultHex;
+  document.getElementById('compareAiColor').innerHTML = `<span class="hex-code" style="font-size: 14px; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">${resultHex}</span>`;
+  document.getElementById('compareAiHex').textContent = resultHex;
+}
+
+function updateCompareManual() {
+  const resultHex = mixColors(manualRecipe);
+  if (!resultHex) return;
+
+  document.getElementById('compareManualColor').style.background = resultHex;
+  document.getElementById('compareManualColor').innerHTML = `<span class="hex-code" style="font-size: 14px; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">${resultHex}</span>`;
+  document.getElementById('compareManualHex').textContent = resultHex;
+}
+
+function addColor() {
+  const color = colors.find(c => c.id === selectedColorId);
+  const ratio = parseInt(slider.value);
+
+  const existing = manualRecipe.find(item => item.color.id === color.id);
+  if (existing) {
+    existing.ratio += ratio;
+  } else {
+    manualRecipe.push({ color, ratio });
+  }
+
+  updateManualRecipeDisplay();
+  updateCompareManual();
+  updateManualSummary();
+}
+
+function updateManualRecipeDisplay() {
+  const list = document.getElementById('manualRecipeList');
+  list.innerHTML = '';
+
+  if (manualRecipe.length === 0) {
+    return;
+  }
+
+  manualRecipe.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'recipe-item';
+    const borderColor = (item.color.hex === '#FFFFFF' || item.color.hex === '#FFFFE0' || item.color.hex === '#FFFF00') ? '#ccc' : '#e5e7eb';
+    div.innerHTML = `
+      <div class="recipe-left">
+        <div class="color-preview" style="background: ${item.color.hex}; border-color: ${borderColor};"></div>
+        <span class="recipe-name">${item.color.name}</span>
+        <span class="recipe-percent-text">${item.ratio}%</span>
       </div>
+      <button class="btn-remove" onclick="removeColor(${idx})">削除</button>
+    `;
+    list.appendChild(div);
+  });
+}
 
-      <div class="input-group">
-        <label>🎨 作りたい色名:</label>
-        <input type="text" id="aiColorName" placeholder="例: 夢見る白、深海ブルー" />
-      </div>
+function updateManualSummary() {
+  if (manualRecipe.length === 0) {
+    document.getElementById('manualSummaryCard').style.display = 'none';
+    return;
+  }
 
-      <div class="input-group">
-        <label>🤖 使用AI:</label>
-        <select id="aiName">
-          <option value="ChatGPT">ChatGPT</option>
-          <option value="Gemini">Gemini</option>
-          <option value="Copilot">Copilot</option>
-          <option value="Claude">Claude</option>
-          <option value="Perplexity">Perplexity</option>
-          <option value="その他">その他</option>
-        </select>
-      </div>
+  const resultHex = mixColors(manualRecipe);
+  if (!resultHex) return;
 
-      <label style="font-weight: 600; color: #374151; display: block; margin-bottom: 8px;">AIの提案を貼り付け:</label>
-      <div class="help-text">AIが返した提案をそのまま貼り付けてください。</div>
-      <textarea id="pasteArea" placeholder="例: ホワイト70%, ライトイエロー15%, ラベンダー10%, ピンク5%"></textarea>
-      <button class="btn-paste" onclick="parseAIResponse()">✨ AI提案を反映する</button>
-    </div>
-  </div>
+  const today = new Date().toLocaleDateString('ja-JP');
+  document.getElementById('manualDisplayDate').textContent = today;
 
-  <div class="card" id="aiSummaryCard" style="display: none;">
-    <div class="result-box result-box-large">
-      <div class="result-header">
-        <div class="result-meta">📅 <strong id="displayDate">-</strong></div>
-        <div class="result-meta">🎨 <strong id="displayColorName">-</strong></div>
-        <div class="result-meta">🤖 <strong id="displayAiName">-</strong></div>
-      </div>
+  document.getElementById('manualColorDisplay').style.background = resultHex;
+  document.getElementById('manualHexCode').textContent = resultHex;
 
-      <div class="color-display" id="aiColorDisplay" style="background: #cccccc;">
-        <span class="hex-code" id="aiHexCode">#CCCCCC</span>
-      </div>
+  const recipeSection = document.getElementById('manualRecipeSection');
+  recipeSection.innerHTML = '<div class="recipe-title">📋 レシピ:</div>';
 
-      <div class="recipe-section" id="aiRecipeSection"></div>
+  manualRecipe.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'recipe-item-display';
+    const borderColor = (item.color.hex === '#FFFFFF' || item.color.hex === '#FFFFE0' || item.color.hex === '#FFFF00') ? '#ccc' : '#e5e7eb';
+    div.innerHTML = `
+      <div class="recipe-color-box" style="background: ${item.color.hex}; border-color: ${borderColor};"></div>
+      <span class="recipe-text">${item.color.name}</span>
+      <span class="recipe-percent">${item.ratio}%</span>
+    `;
+    recipeSection.appendChild(div);
+  });
 
-      <button class="btn-copy-info" onclick="copyAIInfo()">📋 この情報をテキストでコピー</button>
-    </div>
-  </div>
+  document.getElementById('manualSummaryCard').style.display = 'block';
+}
 
-  <div class="card">
-    <div class="section-title">⚖️ 比較</div>
-    <div class="compare-container">
-      <div class="compare-box ai">
-        <div class="compare-label" style="color: #8b5cf6;">🤖 AI提案</div>
-        <div class="compare-color" id="compareAiColor" style="background: #cccccc;">
-          <span class="hex-code" style="font-size: 14px;">-</span>
-        </div>
-        <div class="compare-hex" id="compareAiHex">反映してください</div>
-      </div>
+function copyManualInfo() {
+  const resultHex = mixColors(manualRecipe);
+  const recipeText = manualRecipe.map(item => `${item.color.name} ${item.ratio}%`).join('\n');
+  const today = new Date().toLocaleDateString('ja-JP');
 
-      <div class="compare-box manual">
-        <div class="compare-label" style="color: #10b981;">✋ 手動調整</div>
-        <div class="compare-color" id="compareManualColor" style="background: #cccccc;">
-          <span class="hex-code" style="font-size: 14px;">-</span>
-        </div>
-        <div class="compare-hex" id="compareManualHex">追加してください</div>
-      </div>
-    </div>
-  </div>
+  const text = `✋ 手動調整の結果
+📅 ${today}
 
-  <div class="card">
-    <div class="section-title">✋ 手動で混色</div>
+📋 レシピ:
+${recipeText}
 
-    <div class="input-group">
-      <label>色を選択（タップで一覧表示）:</label>
-      <div class="custom-select">
-        <div class="select-display" onclick="toggleOptions()">
-          <div class="color-indicator" id="colorIndicator" style="background: #FFFFFF;"></div>
-          <span id="selectedColorText">ホワイト (#FFFFFF)</span>
-        </div>
-        <div class="options-list" id="optionsList"></div>
-      </div>
-    </div>
+🎨 ${resultHex}`;
 
-    <div class="ratio-control">
-      <label style="min-width: 60px; font-weight: 600;">配合量:</label>
-      <input type="range" id="ratioSlider" min="5" max="100" value="50" step="5">
-      <span class="ratio-value" id="ratioValue">50%</span>
-    </div>
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('✅ 手動調整情報をコピーしました！');
+  }).catch(() => {
+    showToast('❌ コピーに失敗しました');
+  });
+}
 
-    <button class="btn-add" onclick="addColor()">➕ この色を追加</button>
+function copyManualForAI() {
+  const recipeText = manualRecipe.map(item => `${item.color.name}${item.ratio}%`).join(', ');
 
-    <div id="manualRecipeList" style="margin-top: 15px;"></div>
+  navigator.clipboard.writeText(recipeText).then(() => {
+    showToast('✅ AI入力用にコピーしました！AI提案欄に貼り付けてください');
+  }).catch(() => {
+    showToast('❌ コピーに失敗しました');
+  });
+}
 
-    <button class="btn-reset" onclick="resetManual()">🔄 手動調整をリセット</button>
-  </div>
+function removeColor(idx) {
+  manualRecipe.splice(idx, 1);
+  updateManualRecipeDisplay();
+  if (manualRecipe.length > 0) {
+    updateCompareManual();
+    updateManualSummary();
+  } else {
+    resetManualDisplay();
+  }
+}
 
-  <div class="card" id="manualSummaryCard" style="display: none;">
-    <div class="result-box result-box-manual">
-      <div class="result-header">
-        <div class="result-meta">✋ <strong>手動調整の結果</strong></div>
-        <div class="result-meta">📅 <strong id="manualDisplayDate">-</strong></div>
-      </div>
+function mixColors(recipe) {
+  if (recipe.length === 0) return null;
 
-      <div class="color-display" id="manualColorDisplay" style="background: #cccccc;">
-        <span class="hex-code" id="manualHexCode">#CCCCCC</span>
-      </div>
+  let r = 0, g = 0, b = 0;
+  const total = recipe.reduce((sum, item) => sum + item.ratio, 0);
 
-      <div class="recipe-section" id="manualRecipeSection"></div>
+  recipe.forEach(item => {
+    const hex = item.color.hex;
+    const weight = item.ratio / total;
+    r += parseInt(hex.slice(1, 3), 16) * weight;
+    g += parseInt(hex.slice(3, 5), 16) * weight;
+    b += parseInt(hex.slice(5, 7), 16) * weight;
+  });
 
-      <button class="btn-copy-info" onclick="copyManualInfo()">📋 この情報をテキストでコピー</button>
-      <button class="btn-copy-info" onclick="copyManualForAI()" style="background: #8b5cf6; margin-top: 10px;">🔄 AI入力用にコピー</button>
-    </div>
-  </div>
-</div>
+  r = Math.round(r);
+  g = Math.round(g);
+  b = Math.round(b);
 
-<div id="toast" class="toast"></div>
+  return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase();
+}
 
-<script src="script.js"></script>
-</body>
-</html>
+function resetManualDisplay() {
+  document.getElementById('compareManualColor').style.background = '#cccccc';
+  document.getElementById('compareManualColor').innerHTML = '<span class="hex-code" style="font-size: 14px;">-</span>';
+  document.getElementById('compareManualHex').textContent = '追加してください';
+  document.getElementById('manualSummaryCard').style.display = 'none';
+}
+
+function resetManual() {
+  manualRecipe = [];
+  updateManualRecipeDisplay();
+  resetManualDisplay();
+}
+
+function saveAsHTML() {
+  const htmlContent = document.documentElement.outerHTML;
+  const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'カラーサンド混色シミュレーター.html';
+  link.click();
+  showToast('💾 ツールを保存しました！ファイルアプリから開けます');
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3500);
+}
