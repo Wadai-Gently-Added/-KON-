@@ -84,6 +84,9 @@ slider.addEventListener('input', () => {
 
 function copyPrompt() {
   const colorList = colors.map(c => `${c.name} (${c.hex})`).join('\n');
+  const promptColorName = document.getElementById('promptColorName').value.trim();
+  const targetColorLine = promptColorName || '（ここに作りたい色を書いてください。例: 深海ブルー、桜色、夕焼け など）';
+  
   const prompt = `以下の33色カラーサンドから、指定した色の混色レシピを提案してください。
 
 【重要】必ず以下の形式で1行のみ回答してください：
@@ -96,7 +99,7 @@ function copyPrompt() {
 ${colorList}
 
 【依頼する色】
-（ここに作りたい色を書いてください。例: 深海ブルー、桜色、夕焼け など）`;
+${targetColorLine}`;
 
   navigator.clipboard.writeText(prompt).then(() => {
     showToast('✅ プロンプトをコピーしました！AIに貼り付けて依頼してください');
