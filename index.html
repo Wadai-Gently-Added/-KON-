@@ -39,14 +39,14 @@
         <textarea id="pasteArea" placeholder="例: ホワイト70%, ライトイエロー15%, ラベンダー10%, ピンク5%"></textarea>
         <button class="btn-paste" onclick="parseAIResponse()">✨ AI提案を反映する</button>
       </div>
-    </div>
 
-    <div class="col-right">
       <div class="card">
         <h1 class="title-inline">🎨 混-KON-</h1>
         <p class="subtitle-inline">33色から自由に混ぜてオリジナルカラーを作ろう</p>
       </div>
+    </div>
 
+    <div class="col-right">
       <div class="card">
         <div class="header-line">🤖 AIに依頼する <span>ー 他AI（ChatGPT等）に投げるプロンプトをコピーします</span></div>
 
@@ -58,9 +58,11 @@
         <button class="btn-copy-prompt" onclick="copyPrompt()">📋 AI用プロンプトをコピー</button>
       </div>
 
+      <!--
       <div class="card">
         <button class="btn-save" onclick="saveAsHTML()">💾 このツールを保存</button>
       </div>
+      -->
 
       <div class="card">
         <div class="section-title">✋ 手動で混色</div>
@@ -128,8 +130,13 @@
   </div>
 </div>
 
-<div class="floating-compare" id="floatingCompare">
-  <div class="floating-compare-title">⚖️ 比較</div>
+<button class="compare-toggle-btn" id="compareToggleBtn" onclick="toggleCompare()">⚖️ 比較</button>
+
+<div class="floating-compare hidden" id="floatingCompare">
+  <div class="floating-compare-title">
+    ⚖️ 比較
+    <span class="floating-compare-close" onclick="toggleCompare()">✕</span>
+  </div>
   <div class="compare-container">
     <div class="compare-box ai">
       <div class="compare-label" style="color: #8b5cf6;">🤖 AI提案</div>
