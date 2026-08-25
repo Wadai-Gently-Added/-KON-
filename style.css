@@ -22,6 +22,18 @@ body {
     grid-template-columns: 1fr 1fr;
   }
 }
+.title-inline {
+  color: #374151;
+  text-align: center;
+  margin-bottom: 6px;
+  font-size: 20px;
+}
+.subtitle-inline {
+  color: #6b7280;
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 12px;
+}
 h1 {
   color: white;
   text-align: center;
