@@ -391,6 +391,11 @@ function saveAsHTML() {
   showToast('💾 ツールを保存しました！ファイルアプリから開けます');
 }
 
+function toggleCompare() {
+  const panel = document.getElementById('floatingCompare');
+  panel.classList.toggle('hidden');
+}
+
 function showToast(msg) {
   const toast = document.getElementById('toast');
   toast.textContent = msg;
