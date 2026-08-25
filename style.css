@@ -38,6 +38,62 @@ body {
   font-size: 12px;
   display: block;
 }
+.header-line {
+  font-size: 13px;
+  font-weight: 700;
+  color: #374151;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+.header-line span {
+  font-weight: 400;
+  color: #6b7280;
+  font-size: 12px;
+}
+.floating-compare {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  width: 200px;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.5);
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  z-index: 500;
+  max-height: 45vh;
+  overflow-y: auto;
+}
+.floating-compare-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #374151;
+  margin-bottom: 8px;
+  text-align: center;
+}
+.floating-compare .compare-container {
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+.floating-compare .compare-color {
+  height: 50px;
+}
+.floating-compare .compare-hex {
+  font-size: 11px;
+}
+@media (max-width: 500px) {
+  .floating-compare {
+    width: 140px;
+    padding: 8px;
+    bottom: 10px;
+    right: 10px;
+  }
+  .floating-compare .compare-color {
+    height: 36px;
+  }
+}
 h1 {
   color: white;
   text-align: center;
